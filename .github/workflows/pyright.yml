@@ -12,7 +12,7 @@ on:
 permissions: {}
 
 jobs:
-  shellcheck:
+  pyright:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
