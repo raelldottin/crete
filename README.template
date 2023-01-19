@@ -1,5 +1,4 @@
 # {{ repository.name }} v{{ current.version }}
-[![Python Linter](https://github.com/{{ repository.name }}/actions/workflows/pyright.yml/badge.svg)](https://github.com/{{ repository.name }}/actions/workflows/pyright.yml)
 
 **Table of Contents**
 
