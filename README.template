@@ -1,0 +1,16 @@
+# {{ repository.name }} v{{ current.version }}
+[![Python Linter](https://github.com/{{ repository.name }}/actions/workflows/pyright.yml/badge.svg)](https://github.com/{{ repository.name }}/actions/workflows/pyright.yml)
+
+[![ v{{ current.version }} ](https://github.com/{{ repository.name }}/blob/main/PNGimage.png)](https://github.com/{{ repository.name }}/blob/main/PNGimage.png)
+
+**Table of Contents**
+
+<!-- toc -->
+
+- [About](#about)
+
+<!-- tocstop -->
+
+## About
+
+A script to auto generate REST API endpoints from a pcap
