@@ -134,7 +134,7 @@ class ClientApplication(NetworkApplication):
     def decode_protocol(self):
         stage = 0
         length = self.stream.length
-        protocol: ClientProtocol = None
+        protocol: ClientProtocol = ClientProtocol()
         self.print('offset={} length={} header={}\n'.format(self.stream.position, self.stream.length, self.header))
         while self.stream.position + self.header < length:
             offset = self.stream.position
@@ -184,7 +184,7 @@ class LogicApplication(ClientApplication):
         message_map = {}
         for enum_name in ('HttpApiSvrCmd', 'ZoneSvrCmd'):
             command_enum = self.module_map.get(enum_name)
-            for name, value in command_enum.items():  # type: str, int
+            for name, value in command_enum.items(): # type: ignore
                 message_name = ''.join([x.title() for x in name.split('_')])
                 message_class = self.module_map.get(message_name)
                 if not message_class: continue
@@ -200,7 +200,7 @@ class LogicApplication(ClientApplication):
 
 class ApolloHeader(TCPHeader):
     def __init__(self):
-        super(ApolloHeader, self).__init__(None)
+        super(ApolloHeader, self).__init__(None) # type: ignore
 
     def decode(self, stream: MemoryStream):
         self.src_port = stream.read_uint16()
@@ -215,13 +215,13 @@ class ApolloHeader(TCPHeader):
 
 class ArenaTunnelApplication(ClientApplication):
     def __init__(self, debug: bool):
-        super(ArenaTunnelApplication, self).__init__(None, debug)
+        super(ArenaTunnelApplication, self).__init__(None, debug) # type: ignore
         self.__shared_stream:MemoryStream = MemoryStream()
 
     def register_command_map(self):
         command_enum = self.module_map.get('GameSvrCmd')
         message_map = {}
-        for name, value in command_enum.items():  # type: str, int
+        for name, value in command_enum.items():  # type: ignore
             message_name = ''.join([x.title() for x in name.split('_')])
             message_class = self.module_map.get(message_name)
             if not message_class: continue
