@@ -15,9 +15,9 @@ class ActionObject(Debugger):
         self.length = 0
         self.header = 3
         self.source_player = 0
-        self.data:bytes = None
+        self.data:bytes = b'0'
         self.type:int = 0
-        self.message:ActionMessage = None
+        self.message:ActionMessage = message.get_message(self.type)
         self.id:int = 0
 
     def decode(self, stream:MemoryStream):
