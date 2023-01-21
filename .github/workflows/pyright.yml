@@ -24,3 +24,4 @@ jobs:
         with:
           python-platform: Darwin
           venv-path: venv
+          no-comments: true
