@@ -52,14 +52,21 @@ def getGitVars():
 def setGiVars():
     '''Set the values for the GITVARS dictionary'''
     GITVARS["remote.origin.url"] = (subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).strip().decode("utf-8"))
-    GITVARS["repository.name"] = re.findall("([^:]+)\.git$", GITVARS["remote.origin.url"])[0]
+    repository_match = re.search(r"[:/]([^/]+/[^/.]+)(?:\.git)?$", GITVARS["remote.origin.url"])
+    if not repository_match:
+        raise RuntimeError(f'Unable to parse repository name from remote.origin.url: {GITVARS["remote.origin.url"]}')
+    GITVARS["repository.name"] = repository_match.group(1)
     GITVARS["current.branch"] = (subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD", ]).strip().decode("utf-8"))
     GITVARS["current.commit"] = (subprocess.check_output([ "git", "rev-parse", "HEAD", ]).strip().decode("utf-8"))
     GITVARS["tags"] = (subprocess.check_output(["git", "tag", "--list",]).strip().decode("utf-8"))
 
     for key in GITVARS.keys():
-        if not GITVARS[key]:
-            GITVARS[key] = (subprocess.check_output(['git', 'config', key,]).strip().decode("utf-8"))
+        if GITVARS[key]:
+            continue
+        try:
+            GITVARS[key] = (subprocess.check_output(['git', 'config', key,], stderr=subprocess.DEVNULL).strip().decode("utf-8"))
+        except subprocess.CalledProcessError:
+            GITVARS[key] = ''
 
 def writeOUTPUTFILE():
     '''Write the output file with the replaced keywords'''

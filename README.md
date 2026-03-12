@@ -1,17 +1,125 @@
 <!---
 This file is auto-generate by a github hook please modify README.template if you don't want to loose your work
 -->
-# raelldottin/AutogenRestApiEndpoints v0.0.1-22
-[![Python Linter](https://github.com/raelldottin/AutogenRestApiEndpoints/actions/workflows/pyright.yml/badge.svg)](https://github.com/raelldottin/AutogenRestApiEndpoints/actions/workflows/pyright.yml)
+# raelldottin/crete
+[![Python Linter](https://github.com/raelldottin/crete/actions/workflows/pyright.yml/badge.svg)](https://github.com/raelldottin/crete/actions/workflows/pyright.yml)
 
-**Table of Contents**
+## Executive Summary
 
-<!-- toc -->
+`crete` automatically generates REST API artifacts from network captures.
 
-- [About](#about)
+Given an HTTP `pcapng` capture, it reconstructs observed HTTP traffic and produces:
+- OpenAPI 3.0 specification (`openapi.json`)
+- Flask endpoint scaffold (`generated_flask_app.py`)
 
-<!-- tocstop -->
+This enables teams to bootstrap API contracts and server skeletons from real production-like traffic when source contracts are missing or outdated.
 
-## About
+## Core Capabilities
 
-A script to auto generate REST API endpoints from a pcap
+- Packet decoding for IPv4/TCP traffic from `pcapng`
+- HTTP/1.x request and response parsing with `Content-Length` and chunked response support
+- Endpoint inference by normalized route + method
+- Query parameter extraction from observed requests
+- Request/response body schema inference for JSON and URL-encoded payloads
+- OpenAPI 3.0.3 generation from captured behavior
+- Flask route stub generation for implementation handoff
+
+## Scope
+
+Supported:
+- `pcapng` captures
+- IPv4 + TCP payloads
+- HTTP/1.0 and HTTP/1.1 message formats
+- JSON and form-encoded request payload inference
+
+Current limitations:
+- No TLS decryption (HTTPS payloads are opaque unless traffic is already decrypted)
+- No HTTP/2 frame decoding
+- No raw `.pcap` parsing in the current pipeline
+- No distributed multi-capture correlation
+
+## Architecture
+
+High-level flow:
+
+1. `Wireshark` parser decodes packet blocks and emits TCP payload bytes.
+2. `HTTPStreamParser` reconstructs HTTP messages from stream fragments.
+3. `EndpointCollector` pairs requests/responses and aggregates operation observations.
+4. Artifact builders write OpenAPI and Flask scaffold outputs.
+
+Detailed design docs:
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Output Spec](./docs/API_OUTPUT_SPEC.md)
+- [Operations Guide](./docs/OPERATIONS.md)
+- [Security and Data Handling](./docs/SECURITY.md)
+- [Troubleshooting](./docs/TROUBLESHOOTING.md)
+
+## Quick Start
+
+### 1. Run the generator
+
+```bash
+python3 autogen_rest_api.py \
+  --capture-file ./capture.pcapng \
+  --output-dir ./generated
+```
+
+### 2. Optional metadata
+
+```bash
+python3 autogen_rest_api.py \
+  --capture-file ./capture.pcapng \
+  --output-dir ./generated \
+  --title "Captured Service API" \
+  --server-url "https://api.example.com"
+```
+
+### 3. Generated outputs
+
+- `generated/openapi.json`
+- `generated/generated_flask_app.py`
+
+## CLI Reference
+
+```text
+usage: autogen_rest_api.py [-h] --capture-file CAPTURE_FILE
+                           [--output-dir OUTPUT_DIR] [--title TITLE]
+                           [--server-url SERVER_URL] [--debug]
+```
+
+Arguments:
+- `--capture-file`, `-f`: input `pcapng` file (required)
+- `--output-dir`, `-o`: target artifact directory (default: `generated`)
+- `--title`: OpenAPI `info.title` (default: `Generated API`)
+- `--server-url`: optional OpenAPI server URL
+- `--debug`, `-d`: packet parser debug mode
+
+## Quality and Validation
+
+Run tests:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py'
+```
+
+Validate syntax:
+
+```bash
+python3 -m py_compile autogen_rest_api.py tests/test_autogen_rest_api.py
+```
+
+## Operational Guidance
+
+- Run generator in an isolated environment when captures may contain sensitive payload data.
+- Store generated artifacts in a controlled directory with access restrictions.
+- Treat output schema as inferred behavior, not an authoritative source contract, until reviewed.
+
+## Contributing
+
+1. Open an issue with reproducible input and expected output behavior.
+2. Add or update tests in `tests/` for parser and generator changes.
+3. Keep updates backward-compatible in generated OpenAPI shape when possible.
+
+## License
+
+This project is licensed under the GNU General Public License v3.0.
